@@ -19,7 +19,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
+    /* Import Alias (Fix for ShadCN) */
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src", "global.d.ts" ],
+  "include": ["src", "global.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
+

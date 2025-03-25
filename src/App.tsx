@@ -1,8 +1,8 @@
 import { createTheme, MantineProvider } from "@mantine/core";
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css'
-import '@mantine/carousel/styles.css'
+import '@mantine/dates/styles.css';
+import '@mantine/carousel/styles.css';
 import MainLayout from "./components/layout/MainLayout";
 import LandingPage from "./pages/LandingPage";
 import ErrorPage from "./components/common/ErrorPage";
@@ -20,20 +20,19 @@ const router = createBrowserRouter([
       { index: true, element: <LandingPage /> }
     ],
   },
-  { path: "auth/login", element: <LoginPage /> },
-  { path: "auth/register", element: <SignupPage /> },
+  { path: "/auth/login", element: <LoginPage /> },
+  { path: "/auth/register", element: <SignupPage /> },
   {
     path: '/admin-dashboard',
-    element: <AuthProtectedRoute>
-      <AdminLayout />
-    </AuthProtectedRoute>,
+    element: (
+      <AuthProtectedRoute>
+        <AdminLayout />
+      </AuthProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
-    children: [
-      
-    ]
+    children: [],
   },
-
-])
+]);
 
 const theme = createTheme({
   fontFamily: "Saira, sans-serif",
@@ -51,7 +50,9 @@ const App = () => {
     <MantineProvider theme={theme}>
       <RouterProvider router={router} />
     </MantineProvider>
-  )
+  );
 }
 
 export default App;
+
+

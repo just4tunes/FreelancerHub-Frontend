@@ -1,14 +1,12 @@
-import Hero from '../components/landing/Hero'
-import UpcomingEvent from '../components/landing/UpcomingEvent'
 
-function LandingPage() {
+import Hero from '../components/landing/Hero';
 
+const LandingPage = () => {
   return (
-    <>
-      <Hero />
-      <UpcomingEvent/>
-    </>
-  )
-}
+    <div>
+      <Hero/>
+    </div>
+  );
+};
 
-export default LandingPage
+export default LandingPage;
