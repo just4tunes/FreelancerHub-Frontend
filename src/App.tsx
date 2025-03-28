@@ -10,6 +10,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminLayout from "./components/layout/AdminLayout";
 import AuthProtectedRoute from "./utils/protection/AuthProtectedRoute";
+import About from "./pages/Aboutpage.tsx"; // Import About Us page
+import Contact from "./pages/Contactpage.tsx"; // Import Contact Us page
 
 const router = createBrowserRouter([
   {
@@ -17,7 +19,9 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <LandingPage /> }
+      { index: true, element: <LandingPage /> },
+      { path: 'about', element: <About /> }, // Added About page route
+      { path: 'contact', element: <Contact /> }, // Added Contact page route
     ],
   },
   { path: "/auth/login", element: <LoginPage /> },
@@ -51,8 +55,9 @@ const App = () => {
       <RouterProvider router={router} />
     </MantineProvider>
   );
-}
+};
 
 export default App;
+
 
 

@@ -9,7 +9,7 @@ function Hero() {
             Connect. Collaborate. Succeed.
           </p>
 
-          <span className="font-satoshi text-sm lg:text-lg">
+          <span className="font-serif text-sm lg:text-lg">
             Join a thriving marketplace where university students find freelance
             gigs, showcase their skills, and build experience while studying.
             Whether you need a project done or want to earn from your expertise,
@@ -18,7 +18,7 @@ function Hero() {
         </div>
 
         <div className="flex gap-4 sm:mt-5">
-          <button className=" py-2 bg-[#266464] hover:bg-[#1f5252] text-white rounded-md  w-[20vh] mt-5 sm:py-3">
+          <button className=" py-2 bg-[#266464] hover:bg-[#1f5252] text-white rounded-md  w-[20vh] mt-5 sm:py-3 font-serif">
             Click Me
           </button>
 

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-// import Footer from "../common/Footer";
+import Footer from "../common/Footer";
 import Header from "../common/Header";
 
 
@@ -13,7 +13,7 @@ function MainLayout() {
       ></div>
       <Header />
       <Outlet />
-      {/* <Footer /> */}
+      <Footer />
     </>
   )
 }
