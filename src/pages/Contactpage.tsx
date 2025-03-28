@@ -1,13 +1,13 @@
-import Cform from "../components/Contact/Cform";
-import Cmap from "../components/Contact/Cmap";
+// import Cform from "../components/Contact/Cform";
+// import Cmap from "../components/Contact/Cmap";
 
 
 
 const Contactpage = () => {
     return (
         <div>
-            <Cmap/>
-            <Cform/>
+            {/* <Cmap/> */}
+            {/* <Cform/> */}
             
             
         </div>
