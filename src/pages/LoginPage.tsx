@@ -1,162 +1,122 @@
-import { Alert, Button, Checkbox, LoadingOverlay } from "@mantine/core";
-import { useContext, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { MdAlternateEmail, MdError, MdOutlineLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, LoginSchemaType } from "../utils/schemas/schemas";
-import SpecialHeader from "../components/common/SpecialHeader";
-import { Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
-import { api } from "../api/axios";
-import { UserContext } from "../hooks/userContext";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
-  const { login } = useContext(UserContext);
-  const navigate = useNavigate()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>(""); // Initialize error state with empty string
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
-  const loginUser = async (data: LoginSchemaType) => {
-    setIsLoading(true);
-    try {
-      const response = await api.post("/auth/login", data);
-      login(response?.data);
-      toast.success(response?.data?.message || "Login successful!");
-      reset();
-      response?.data?.user?.isAdmin == true ? navigate("/admin-dashboard", { replace: true })  : navigate("/dashboard", { replace: true });
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Login failed. Please try again.";
-      toast.error(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const submitData: SubmitHandler<LoginSchemaType> = (data, e) => {
-    e?.preventDefault();
-    setError("");
-    loginUser(data);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
-
   return (
-    <main className="flex flex-col gap-6">
-      <Toaster/>
-      <SpecialHeader />
-      <div className="flex flex-col gap-6 lg:mt-6 relative justify-center items-center w-full custom-font-jakarta">
-        <LoadingOverlay
-          visible={isLoading}
-          zIndex={1000}
-          overlayProps={{ radius: "sm", blur: 2 }}
-        />
-        <div className="w-full max-w-screen-md">
-          <header className="text-center">
-            <h1 className="font-bold text-2xl mb-2 text-[#2a3547]">Login into Account</h1>
-            <p className="text-sm font-medium text-[#2a3547]">Sign in using your email and password.</p>
-          </header>
-          <div className="relative flex items-center justify-center my-6">
-            <div className="border-[0.2px] border-[#dfe5efaf] w-full absolute top-1/2 transform -translate-y-1/2"></div>
-            <p className="bg-white px-3 text-dark z-10 relative">Login</p>
-          </div>
-          {error && (
-            <Alert
-              variant="light"
-              color="red"
-              title="Error"
-              icon={<MdError />}
-              withCloseButton
-              styles={{ label: { fontSize: "16px" }, body: { gap: ".25rem" } }}
-              className="mb-4" 
+    <div className="w-full min-h-screen flex items-center justify-center bg-white p-4">
+      {/* Back Home Link */}
+      <Link
+        to="/"
+        className="absolute top-7 left-44 text-[#266464] hover:underline text-sm sm:text-base font-medium"
+      >
+        ← Back Home
+      </Link>
+
+      <div className="w-full max-w-6xl bg-gray-50 rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden relative">
+        {/* Left: Form Section */}
+        <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+            Login
+          </h2>
+
+          <form className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#266464] text-white rounded-lg hover:bg-green-900 transition"
             >
-              {error}
-            </Alert>
-          )}
-          <form action="" onSubmit={handleSubmit(submitData)} className="px-[15px]">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-1 relative">
-                <input
-                  type="email"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg pl-10 py-3 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.email &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Email address"
-                  {...register("email")}
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-                  <MdAlternateEmail className="text-[#5d87ff]" />
-                  <span className="ml-2 h-4 border-l border-gray-300"></span>
-                </div>
-                {errors.email && (
-                  <div className="error-message absolute top-full left-3 mt-1 text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.email.message}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1 relative mt-2">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg pl-10 py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.password &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Password"
-                  {...register("password")}
-                />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-                  <MdOutlineLock className="text-[#5d87ff]" />
-                  <span className="ml-2 h-4 border-l border-gray-300"></span>
-                </div>
-                <div
-                  className="absolute right-3 top-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
-                </div>
-                {errors.password && (
-                  <div className="error-message absolute top-full left-3 mt-1 text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.password.message}
-                  </div>
-                )}
-              </div>
-
-            </div>
-            <div className="flex flex-col lg:flex-row justify-between gap-2 mt-8 mb-5">
-              <span className="flex text-sm"><Checkbox mr={10} defaultChecked /> Remember Me</span>
-              <Link to='/auth/login' className="text-sm text-[#5d87ff]">Forgot Password ?</Link>
-            </div>
-            <div className="flex justify-center gap-2 mt-10 mb-5">
-              <Button type="submit" w="100%" color='#5d87ff' size="md">
-                Log In
-              </Button>
-            </div>
-          </form>
-          <div className="gap-2 mt-4 mb-5 px-[15px]">
-            <p className="text-sm text-[#2a3547]">
-              Don't have an account? <Link to="/auth/register" className="text-[#306ee8]">Sign up</Link>
+              Login
+            </button>
+            <p className="text-sm text-center mt-2">
+              Don’t have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-[#266464] font-medium hover:underline"
+              >
+                Sign up
+              </Link>
             </p>
+          </form>
+        </div>
+
+        {/* Book Spine Decorations */}
+        <div className="hidden md:flex flex-col items-center justify-center gap-6 px-2 bg-[#f3f4f6] relative">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className="w-2 h-8 bg-black rounded-full shadow-sm" />
+          ))}
+          <div
+            className="absolute top-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow"
+            title="Pin"
+          />
+          <div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-yellow-400 text-xl rotate-[15deg]"
+            title="Star Sticker"
+          >
+            ⭐
+          </div>
+          <div
+            className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-32 h-20 bg-green-700
+            text-sm text-gray-800 font-medium rounded-sm shadow-md p-2 rotate-[-6deg] flex items-center justify-center"
+          >
+            Welcome back! 💬
+          </div>
+        </div>
+
+        {/* Right: Decorative Image Cluster */}
+        <div className="w-full md:w-1/2 relative flex items-center justify-center bg-white min-h-[300px] md:min-h-0">
+          <img
+            src="/images/signupimage.jpg"
+            alt="Top Left"
+            className="absolute top-4 left-4 w-[70px] h-[70px] md:w-[100px] md:h-[100px] object-cover rounded-full shadow-md border-2 border-white rotate-3"
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Top Right"
+            className="absolute top-6 right-4 w-[60px] h-[60px] md:w-[90px] md:h-[90px] object-cover rounded-xl shadow-lg border-2 border-white rotate-[-6deg]"
+            style={{
+              clipPath:
+                "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%)",
+            }}
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Bottom Left"
+            className="absolute bottom-6 left-6 w-[60px] h-[60px] md:w-[90px] md:h-[90px] object-cover shadow-md border-2 border-white rotate-[8deg]"
+            style={{
+              clipPath:
+                "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
+              borderRadius: "8px",
+            }}
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Bottom Right"
+            className="absolute bottom-4 right-6 w-[70px] h-[70px] md:w-[110px] md:h-[110px] object-cover shadow-md border-2 border-white rotate-[-10deg]"
+            style={{
+              clipPath: "circle(40% at 60% 40%)",
+            }}
+          />
+          <div className="relative z-10 w-[110px] h-[130px] md:w-[190px] md:h-[200px] bg-white shadow-lg border border-gray-200 p-1 flex items-center justify-center rotate-[18deg]">
+            <img
+              src="/images/signupimage.jpg"
+              alt="Center"
+              className="w-full h-full object-cover rounded-md"
+            />
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/9 text-xs text-black-500 font-semibold">
+              Welcome 📸
+            </span>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

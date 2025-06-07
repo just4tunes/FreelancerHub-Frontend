@@ -1,325 +1,187 @@
-import { Alert, Autocomplete, Button, LoadingOverlay, Select } from "@mantine/core";
-import { Country } from "country-state-city";
-import React, { useState } from "react";
-import { PiCaretDown } from "react-icons/pi";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { MdError, MdVisibility, MdVisibilityOff } from "react-icons/md";
-import { registerSchema, RegisterSchemaType } from "../utils/schemas/schemas";
-import SpecialHeader from "../components/common/SpecialHeader";
-import toast, { Toaster } from 'react-hot-toast';
-import { api } from "../api/axios";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
+const SignUp = () => {
+  const [role, setRole] = useState("student");
+  const [skills, setSkills] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const SignupPage: React.FC = () => {
-  const {
-    setValue,
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm<RegisterSchemaType>({
-    resolver: zodResolver(registerSchema),
-  });
+  const navigate = useNavigate();
 
-  const [country, setCountry] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>(""); // Initialize error state with empty string
-  const [gender, setGender] = useState<string | null>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  const countries: string[] = Country.getAllCountries().map((country) => country.name);
+    const payload = {
+      name: fullName.trim(),
+      email: email.trim(),
+      password: password.trim(),
+      role,
+      ...(role === "student" && { skills: skills.trim() }),
+    };
 
-  const registerUser = async (data: RegisterSchemaType) => {
-    delete data.confirmPassword;
-    console.log(data)
-    setIsLoading(true);
     try {
-      const response = await api.post("/auth/register", data);
-      console.log(response)
-      toast.success(response?.data?.message || "Registration successful!");
-      reset();
-      setCountry("");
-      setGender("");
+      const response = await axios.post("http://localhost:5000/api/auth/signup", payload);
+      console.log(response.data);
+
+      alert("Registration successful!");
+      navigate("/login");
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Registration failed. Please try again.";
-      toast.error(errorMessage);
-      setError(errorMessage);
+      console.error("Signup Error:", err);
+
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message === "Network Error") {
+        setError("Cannot connect to server. Please check your internet or try again later.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const submitData: SubmitHandler<RegisterSchemaType> = (data, e) => {
-    e?.preventDefault();
-    setError("");
-    registerUser(data);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword((prev) => !prev);
-  };
-
   return (
-    <main className="flex flex-col gap-10">
-      <Toaster />
-      <SpecialHeader />
-      <div className="flex flex-col gap-6 lg:mt-6 relative justify-center items-center w-full custom-font-jakarta">
-        <LoadingOverlay
-          visible={isLoading}
-          zIndex={1000}
-          overlayProps={{ radius: "sm", blur: 2 }}
-        />
-        <div className="w-full max-w-screen-md">
-          <header className="text-center">
-            <h1 className="font-bold text-2xl mb-2 text-[#2a3547]">Create an Account</h1>
-            <p className="text-sm font-medium text-[#2a3547]">Sign up with your email and get started.</p>
-          </header>
-          <div className="relative flex items-center justify-center my-6">
-            <div className="border-[0.2px] border-[#dfe5efaf] w-full absolute top-1/2 transform -translate-y-1/2"></div>
-            <p className="bg-white px-3 text-dark z-10 relative">Registration</p>
-          </div>
-          {error && (
-            <Alert
-              variant="light"
-              color="red"
-              title="Error"
-              icon={<MdError />}
-              withCloseButton
-              styles={{ label: { fontSize: "16px" }, body: { gap: ".25rem" } }}
-              className="mb-4"
+    <div className="w-full min-h-screen flex items-center justify-center bg-white p-4">
+      <Link
+        to="/"
+        className="absolute top-7 left-44 text-[#266464] hover:underline text-sm sm:text-base font-medium"
+      >
+        ← Back Home
+      </Link>
+
+      <div className="w-full max-w-6xl bg-gray-50 rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden relative">
+        <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Sign Up</h2>
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-950"
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-950"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-950"
+              required
+            />
+
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-950"
             >
-              {error}
-            </Alert>
-          )}
-          <form action="" onSubmit={handleSubmit(submitData)} className="px-[15px]">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.firstName &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="First Name"
-                  {...register("firstName")}
-                />
-                {errors.firstName && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.firstName.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.lastName &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Last Name"
-                  {...register("lastName")}
-                />
-                {errors.lastName && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.lastName.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 lg:col-span-2">
-                <input
-                  type="email"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.email &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Email address"
-                  {...register("email")}
-                />
-                {errors.email && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.email.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <Autocomplete
-                  value={country}
-                  onChange={(country) => {
-                    setCountry(country);
-                    setValue("country", country);
-                  }}
-                  size="md"
-                  placeholder="Select Country"
-                  data={countries}
-                  rightSectionPointerEvents="none"
-                  rightSection={<PiCaretDown />}
-                  comboboxProps={{
-                    position: "bottom",
-                    middlewares: { flip: false, shift: false },
-                    shadow: "md",
-                  }}
-                  styles={{
-                    input: {
-                      '::placeholder': {
-                        color: '#5a6a85',
-                      },
-                      cursor: 'pointer',
-                      border: '0.5px solid #dfe5ef',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      fontSize: '14px',
-                      ':focus': {
-                        borderColor: '#0912ff',
-                        boxShadow: '0 0 0 1px #0912ff',
-                      },
-                    },
-                  }}
-                />
-                {errors.country && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.country.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.phoneNumber &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Phone Number"
-                  {...register("phoneNumber")}
-                />
-                {errors.phoneNumber && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.phoneNumber.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <Select
-                  size="md"
-                  placeholder="Gender"
-                  value={gender}
-                  onChange={(gender) => {
-                    setGender(gender);
-                    setValue("gender", gender);
-                  }}
-                  data={["male", "female", "other"]}
-                  rightSectionPointerEvents="none"
-                  rightSection={<PiCaretDown />}
-                  styles={{
-                    input: {
-                      '::placeholder': {
-                        color: '#5a6a85',
-                      },
-                      cursor: 'pointer',
-                      border: '0.5px solid #dfe5ef',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      fontSize: '14px',
-                      ':focus': {
-                        borderColor: '#0912ff',
-                        boxShadow: '0 0 0 1px #0912ff',
-                      },
-                    },
-                  }}
-                />
-                {errors.gender && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.gender.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="text"
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.address &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Address"
-                  {...register("address")}
-                />
-                {errors.address && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.address.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.password &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Password"
-                  {...register("password")}
-                />
-                <div
-                  className="absolute right-3 top-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
-                </div>
-                {errors.password && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.password.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  className={`border-[0.5px] border-[#dfe5ef] rounded-lg py-2 px-3 
-                    placeholder:text-[#5a6a85] placeholder:text-[14px] text-[14px] focus:outline-none focus:border-[0.5px] 
-                    focus:border-[#0912ff] focus:shadow-active-input ${errors.confirmPassword &&
-                    `focus:border-error-color focus:shadow-error-input`
-                    }`}
-                  placeholder="Confirm Password"
-                  {...register("confirmPassword")}
-                />
-                <div
-                  className="absolute right-3 top-3 cursor-pointer"
-                  onClick={toggleConfirmPasswordVisibility}
-                >
-                  {showConfirmPassword ? <MdVisibilityOff /> : <MdVisibility />}
-                </div>
-                {errors.confirmPassword && (
-                  <div className="text-[#E30101] text-xs flex items-center gap-1">
-                    <MdError /> {errors.confirmPassword.message}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-center gap-2 mt-10 mb-5">
-              <Button type="submit" w='100%' color='#5d87ff' size="md" loading={isLoading}>Sign Up</Button>
-            </div>
-          </form>
-          <div className="gap-2 mt-4 mb-5 px-[15px]">
-            <p className="text-sm text-[#2a3547]">
-              Already have an account? <a href="/auth/login" className="text-[#306ee8]"> Sign in</a>
+              <option value="student">Student</option>
+              <option value="client">Client</option>
+            </select>
+
+            {role === "student" && (
+              <input
+                type="text"
+                value={skills}
+                onChange={(e) => setSkills(e.target.value)}
+                placeholder="Skills (e.g., JavaScript, Python)"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-950"
+              />
+            )}
+
+            {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-[#266464] text-white rounded-lg hover:bg-green-900 transition disabled:opacity-50"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </button>
+
+            <p className="text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link to="/login" className="text-[#266464] hover:underline">
+                Login
+              </Link>
             </p>
+          </form>
+        </div>
+
+        <div className="hidden md:flex flex-col items-center justify-center gap-6 px-2 bg-[#f3f4f6] relative">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className="w-2 h-8 bg-black rounded-full shadow-sm" />
+          ))}
+
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow" />
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-yellow-400 text-xl rotate-[15deg]">⭐</div>
+          <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-32 h-20 bg-green-700 text-sm text-gray-800 font-medium rounded-sm shadow-md p-2 rotate-[-6deg] flex items-center justify-center">
+            Don’t forget to <br /> sign up! 💬
+          </div>
+        </div>
+
+        <div className="w-full md:w-1/2 relative flex items-center justify-center bg-white min-h-[300px] md:min-h-0">
+          <img
+            src="/images/signupimage.jpg"
+            alt="Top Left"
+            className="absolute top-4 left-4 w-[70px] h-[70px] md:w-[100px] md:h-[100px] object-cover rounded-full shadow-md border-2 border-white rotate-3"
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Top Right"
+            className="absolute top-6 right-4 w-[60px] h-[60px] md:w-[90px] md:h-[90px] object-cover rounded-xl shadow-lg border-2 border-white rotate-[-6deg]"
+            style={{ clipPath: "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%)" }}
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Bottom Left"
+            className="absolute bottom-6 left-6 w-[60px] h-[60px] md:w-[90px] md:h-[90px] object-cover shadow-md border-2 border-white rotate-[8deg]"
+            style={{
+              clipPath:
+                "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
+              borderRadius: "8px",
+            }}
+          />
+          <img
+            src="/images/signupimage.jpg"
+            alt="Bottom Right"
+            className="absolute bottom-4 right-6 w-[70px] h-[70px] md:w-[110px] md:h-[110px] object-cover shadow-md border-2 border-white rotate-[-10deg]"
+            style={{ clipPath: "circle(40% at 60% 40%)" }}
+          />
+          <div className="relative z-10 w-[110px] h-[130px] md:w-[190px] md:h-[200px] bg-white shadow-lg border border-gray-200 p-1 flex items-center justify-center rotate-[18deg]">
+            <img
+              src="/images/signupimage.jpg"
+              alt="Center"
+              className="w-full h-full object-cover rounded-md"
+            />
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-black-500 font-semibold">
+              Class of 2025 📸
+            </span>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 
-export default SignupPage;
+export default SignUp;
+
+
+
 
