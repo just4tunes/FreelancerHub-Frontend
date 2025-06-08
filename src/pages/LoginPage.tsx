@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
+import { TextInput, PasswordInput, Button, Paper } from "@mantine/core";
 
 const LoginPage = () => {
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white p-4">
+    <div className="w-full min-h-screen flex items-center justify-center bg-white p-4 relative">
       {/* Back Home Link */}
       <Link
         to="/"
-        className="absolute top-7 left-44 text-[#266464] hover:underline text-sm sm:text-base font-medium"
+        className="absolute top-7 left-6 sm:left-16 text-[#266464] hover:underline text-sm sm:text-base font-medium"
       >
         ← Back Home
       </Link>
@@ -18,33 +19,44 @@ const LoginPage = () => {
             Login
           </h2>
 
-          <form className="space-y-4">
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          <Paper className="space-y-4" withBorder p={0} shadow="none" radius="md">
+            <TextInput
+              label="Email"
+              placeholder="Enter your email"
+              radius="md"
+              size="md"
+              required
+              styles={{ input: { paddingLeft: 12, paddingRight: 12 } }}
             />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            <PasswordInput
+              label="Password"
+              placeholder="Enter your password"
+              radius="md"
+              size="md"
+              required
+              styles={{ input: { paddingLeft: 12, paddingRight: 12 } }}
             />
-            <button
-              type="submit"
-              className="w-full py-3 bg-[#266464] text-white rounded-lg hover:bg-green-900 transition"
+
+            <Button
+              fullWidth
+              radius="md"
+              size="md"
+              color="teal.9"
+              className="mt-2 hover:bg-green-900"
             >
               Login
-            </button>
+            </Button>
+
             <p className="text-sm text-center mt-2">
               Don’t have an account?{" "}
               <Link
-                to="/signup"
+                to="/auth/register"
                 className="text-[#266464] font-medium hover:underline"
               >
                 Sign up
               </Link>
             </p>
-          </form>
+          </Paper>
         </div>
 
         {/* Book Spine Decorations */}
@@ -110,7 +122,7 @@ const LoginPage = () => {
               alt="Center"
               className="w-full h-full object-cover rounded-md"
             />
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/9 text-xs text-black-500 font-semibold">
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-black-500 font-semibold">
               Welcome 📸
             </span>
           </div>
@@ -121,3 +133,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

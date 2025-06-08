@@ -12,6 +12,8 @@ import AdminLayout from "./components/layout/AdminLayout";
 import AuthProtectedRoute from "./utils/protection/AuthProtectedRoute";
 import About from "./pages/Aboutpage.tsx"; // Import About Us page
 import Contact from "./pages/Contactpage.tsx"; // Import Contact Us page
+import UserLayout from "./components/layout/UserLayout";
+import UserDashboard from "./pages/UserDashboard";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,18 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [],
   },
+  {
+  path: "/user-dashboard",
+  element: (
+    <AuthProtectedRoute>
+      <UserLayout />
+    </AuthProtectedRoute>
+  ),
+  errorElement: <ErrorPage />,
+  children: [
+    { index: true, element: <UserDashboard /> },
+  ],
+},
 ]);
 
 const theme = createTheme({

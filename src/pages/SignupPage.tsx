@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2"; // ✅ Import SweetAlert2
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 const SignUp = () => {
   const [role, setRole] = useState("student");
@@ -27,18 +31,31 @@ const SignUp = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signup", payload);
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        payload
+      );
       console.log(response.data);
 
-      alert("Registration successful!");
-      navigate("/login");
+      // ✅ Sweet confirmation popup
+      MySwal.fire({
+        icon: "success",
+        title: "Signup Successful!",
+        text: "You can now log in.",
+      }).then(() => {
+        navigate("/auth/login");// <-- this is the redirect
+      });
+
+     navigate("/auth/login");
     } catch (err: any) {
       console.error("Signup Error:", err);
 
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.message === "Network Error") {
-        setError("Cannot connect to server. Please check your internet or try again later.");
+        setError(
+          "Cannot connect to server. Please check your internet or try again later."
+        );
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -46,6 +63,8 @@ const SignUp = () => {
       setLoading(false);
     }
   };
+
+  // ... keep the rest of your JSX the same
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-white p-4">
@@ -58,7 +77,9 @@ const SignUp = () => {
 
       <div className="w-full max-w-6xl bg-gray-50 rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden relative">
         <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Sign Up</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+            Sign Up
+          </h2>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
@@ -105,7 +126,9 @@ const SignUp = () => {
               />
             )}
 
-            {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-sm font-medium">{error}</p>
+            )}
 
             <button
               type="submit"
@@ -130,7 +153,9 @@ const SignUp = () => {
           ))}
 
           <div className="absolute top-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow" />
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-yellow-400 text-xl rotate-[15deg]">⭐</div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-yellow-400 text-xl rotate-[15deg]">
+            ⭐
+          </div>
           <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-32 h-20 bg-green-700 text-sm text-gray-800 font-medium rounded-sm shadow-md p-2 rotate-[-6deg] flex items-center justify-center">
             Don’t forget to <br /> sign up! 💬
           </div>
@@ -146,7 +171,10 @@ const SignUp = () => {
             src="/images/signupimage.jpg"
             alt="Top Right"
             className="absolute top-6 right-4 w-[60px] h-[60px] md:w-[90px] md:h-[90px] object-cover rounded-xl shadow-lg border-2 border-white rotate-[-6deg]"
-            style={{ clipPath: "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%)" }}
+            style={{
+              clipPath:
+                "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%)",
+            }}
           />
           <img
             src="/images/signupimage.jpg"
@@ -181,7 +209,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-
-
-
-
