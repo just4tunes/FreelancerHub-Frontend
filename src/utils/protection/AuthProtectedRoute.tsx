@@ -4,8 +4,8 @@ import { UserContext } from '../../hooks/userContext';
 
 const AuthProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { accessToken, loading } = useContext(UserContext);
+  console.log('AuthProtectedRoute: Token exists?', !!accessToken, 'Loading?', loading);
 
-  // Still loading the auth state? You can return a loader/spinner here
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -14,12 +14,11 @@ const AuthProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Not logged in? Redirect to login
   if (!accessToken) {
+    console.log('AuthProtectedRoute: Redirecting to /auth/login');
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Logged in? Show the protected route
   return <>{children}</>;
 };
 
