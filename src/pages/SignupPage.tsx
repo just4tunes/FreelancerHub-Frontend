@@ -12,8 +12,8 @@ const SignupPage = () => {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // Fallback API URL if process.env is not defined
-  const API_URL = process.env.REACT_APP_API_URL || 'https://studentfreelancer-backend.onrender.com';
+  // Use Vite's env variable with fallback
+  const API_URL = import.meta.env.VITE_API_URL || 'https://studentfreelancer-backend.onrender.com';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
