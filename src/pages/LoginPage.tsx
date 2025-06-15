@@ -1,12 +1,14 @@
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TextInput, PasswordInput, Button, Paper, Notification } from '@mantine/core';
+import { TextInput, PasswordInput, Button, Paper, Notification, Select } from '@mantine/core';
 import axios from 'axios';
 import { UserContext } from '../hooks/userContext';
 
-const LoginPage = () => {
+const SignupPage = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
@@ -14,33 +16,25 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting login with:', { email, password });
+    console.log('Submitting signup with:', { name, email, password, role });
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, { email, password });
-      console.log('Login response:', response.data);
-      login({ token: response.data.token, user: response.data.user });
-      const { role } = response.data.user;
-      console.log('User role:', role);
-      setSuccess('Login successful');
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/signup`, {
+        name,
+        email,
+        password,
+        role,
+      });
+      console.log('Signup response:', response.data);
+      setSuccess('User registered successfully');
       setError('');
+      setName('');
       setEmail('');
       setPassword('');
-      if (role === 'student') {
-        console.log('Navigating to /student/dashboard');
-        navigate('/student/dashboard', { replace: true });
-      } else if (role === 'client') {
-        console.log('Navigating to /client/dashboard');
-        navigate('/client/dashboard', { replace: true });
-      } else if (role === 'admin') {
-        console.log('Navigating to /admin/dashboard');
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        setError(`Unknown role: ${role}`);
-        console.log('Unknown role:', role);
-      }
+      setRole('student');
+      navigate('/login', { replace: true });
     } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
-      setError(error.response?.data?.message || 'Login failed. Check your credentials.');
+      console.error('Signup error:', error.response?.data || error.message);
+      setError(error.response?.data?.message || 'Signup failed. Try again.');
       setSuccess('');
     }
   };
@@ -55,11 +49,21 @@ const LoginPage = () => {
       </Link>
       <div className="w-full max-w-6xl bg-gray-50 rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden relative">
         <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Login</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Sign Up</h2>
           {success && <Notification color="teal" onClose={() => setSuccess('')}>{success}</Notification>}
           {error && <Notification color="red" onClose={() => setError('')}>{error}</Notification>}
           <Paper className="space-y-4" withBorder p={0} shadow="none" radius="md">
             <form onSubmit={handleSubmit}>
+              <TextInput
+                label="Name"
+                placeholder="Enter your name"
+                radius="md"
+                size="md"
+                required
+                value={name}
+                onChange={(e) => setName(e.currentTarget.value)}
+                styles={{ input: { paddingLeft: 12, paddingRight: 12 } }}
+              />
               <TextInput
                 label="Email"
                 placeholder="Enter your email"
@@ -80,6 +84,20 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.currentTarget.value)}
                 styles={{ input: { paddingLeft: 12, paddingRight: 12 } }}
               />
+              <Select
+                label="Role"
+                placeholder="Select your role"
+                radius="md"
+                size="md"
+                required
+                value={role}
+                onChange={setRole}
+                data={[
+                  { value: 'student', label: 'Student' },
+                  { value: 'client', label: 'Client' },
+                ]}
+                styles={{ input: { paddingLeft: 12, paddingRight: 12 } }}
+              />
               <Button
                 fullWidth
                 radius="md"
@@ -88,13 +106,13 @@ const LoginPage = () => {
                 className="mt-2 hover:bg-green-900"
                 type="submit"
               >
-                Login
+                Sign Up
               </Button>
             </form>
             <p className="text-sm text-center mt-2">
-              Don’t have an account?{' '}
-              <Link to="/auth/register" className="text-[#266464] font-medium hover:underline">
-                Sign up
+              Already have an account?{' '}
+              <Link to="/login" className="text-[#266464] font-medium hover:underline">
+                Log in
               </Link>
             </p>
           </Paper>
@@ -116,7 +134,7 @@ const LoginPage = () => {
           <div
             className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-32 h-20 bg-green-700 text-sm text-gray-800 font-medium rounded-sm shadow-md p-2 rotate-[-6deg] flex items-center justify-center"
           >
-            Welcome back! 💬
+            Welcome! 💬
           </div>
         </div>
         <div className="w-full md:w-1/2 relative flex items-center justify-center bg-white min-h-[300px] md:min-h-0">
@@ -158,5 +176,5 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
 
