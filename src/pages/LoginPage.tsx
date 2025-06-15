@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TextInput, PasswordInput, Button, Paper, Notification } from '@mantine/core';
 import axios from 'axios';
-import { UserContext } from '../../src/hooks/userContext';
+import { UserContext } from '../hooks/userContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -12,11 +12,11 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Submitting login with:', { email, password });
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, { email, password });
       console.log('Login response:', response.data);
       login({ token: response.data.token, user: response.data.user });
       const { role } = response.data.user;
@@ -38,7 +38,7 @@ const LoginPage = () => {
         setError(`Unknown role: ${role}`);
         console.log('Unknown role:', role);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
       setError(error.response?.data?.message || 'Login failed. Check your credentials.');
       setSuccess('');
