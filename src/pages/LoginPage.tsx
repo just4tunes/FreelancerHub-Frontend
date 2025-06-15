@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TextInput, PasswordInput, Button, Paper, Notification } from '@mantine/core';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { UserContext } from '../hooks/userContext';
 
 // Define the shape of the context
@@ -17,11 +17,14 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(UserContext) as UserContextType;
 
+  // Fallback API URL for Vite
+  const API_URL = import.meta.env.VITE_API_URL || 'https://studentfreelancer-backend.onrender.com';
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Submitting login with:', { email, password });
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       console.log('Login response:', response.data);
       login({ token: response.data.token, user: response.data.user });
       const { role } = response.data.user;
@@ -43,9 +46,9 @@ const LoginPage = () => {
         setError(`Unknown role: ${role}`);
         console.log('Unknown role:', role);
       }
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      console.error('Login error:', axiosError.response?.data || axiosError.message);
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      console.error('Login error:', axiosError.response?.data?.message || axiosError.message);
       setError(axiosError.response?.data?.message || 'Login failed. Check your credentials.');
       setSuccess('');
     }

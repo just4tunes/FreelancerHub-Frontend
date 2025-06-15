@@ -1,8 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TextInput, PasswordInput, Button, Paper, Notification, Select } from '@mantine/core';
-import axios from 'axios';
-import { UserContext } from '../hooks/userContext';
+import axios, { AxiosError } from 'axios';
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -12,13 +11,15 @@ const SignupPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
-  const { login } = useContext(UserContext);
 
-  const handleSubmit = async (e) => {
+  // Fallback API URL if process.env is not defined
+  const API_URL = process.env.REACT_APP_API_URL || 'https://studentfreelancer-backend.onrender.com';
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Submitting signup with:', { name, email, password, role });
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/signup`, {
+      const response = await axios.post(`${API_URL}/api/auth/signup`, {
         name,
         email,
         password,
@@ -33,8 +34,9 @@ const SignupPage = () => {
       setRole('student');
       navigate('/login', { replace: true });
     } catch (error) {
-      console.error('Signup error:', error.response?.data || error.message);
-      setError(error.response?.data?.message || 'Signup failed. Try again.');
+      const axiosError = error as AxiosError<{ message?: string }>;
+      console.error('Signup error:', axiosError.response?.data?.message || axiosError.message);
+      setError(axiosError.response?.data?.message || 'Signup failed. Try again.');
       setSuccess('');
     }
   };
